@@ -30,7 +30,7 @@ try {
   // Extract inside the folder: GNU tar on Windows reads "C:" in a -C path as a remote host.
   execFileSync("tar", ["-x"], { cwd: out, input: archive });
   // Files that are in git but have no place on the public site.
-  writeFileSync(join(out, ".assetsignore"), [".git*", ".github", ".assetsignore", "wrangler.jsonc", "node_modules", ".env*", ".dev.vars*", ""].join("\n"));
+  writeFileSync(join(out, ".assetsignore"), [".git*", ".github", ".assetsignore", "wrangler.jsonc", ".wrangler", "node_modules", ".env*", ".dev.vars*", ""].join("\n"));
   writeFileSync(join(out, "wrangler.jsonc"), JSON.stringify({
     name: PROJECT,
     compatibility_date: COMPATIBILITY_DATE,
