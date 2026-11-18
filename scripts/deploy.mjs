@@ -27,7 +27,8 @@ const commit = git("rev-parse", "--short", "HEAD");
 const out = mkdtempSync(join(tmpdir(), "nettriage-deploy-"));
 try {
   const archive = execFileSync("git", ["archive", "--format=tar", "HEAD"], { maxBuffer: 256 * 1024 * 1024 });
-  execFileSync("tar", ["-x", "-C", out], { input: archive });
+  // Extract inside the folder: GNU tar on Windows reads "C:" in a -C path as a remote host.
+  execFileSync("tar", ["-x"], { cwd: out, input: archive });
   // Files that are in git but have no place on the public site.
   writeFileSync(join(out, ".assetsignore"), [".git*", ".github", ".assetsignore", "wrangler.jsonc", "node_modules", ".env*", ".dev.vars*", ""].join("\n"));
   writeFileSync(join(out, "wrangler.jsonc"), JSON.stringify({
