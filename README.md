@@ -4,7 +4,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-%3E%3D22-339933.svg)
 ![Tests: 26 passing](https://img.shields.io/badge/tests-26%20passing-brightgreen.svg)
-![Languages: English · हिन्दी · தமிழ்](https://img.shields.io/badge/fix%20steps-English%20%C2%B7%20Hindi%20%C2%B7%20Tamil-0f5e4b.svg)
+![Languages: English ·தமிழ். हिन्दी](https://img.shields.io/badge/fix%20steps-English%20%C2%B7%20Hindi%20%C2%B7%20Tamil-0f5e4b.svg)
 
 An **open agentic website** for the [Open Agentic Web Challenge](https://cognizant-agenticweb.devpost.com/),
 built to the [Worldwide Agentic Web MVP spec](https://github.com/cognizant-ai-labs/agentic-web/blob/main/docs/worldwide_agentic_web_mvp_spec.md) (Profile 0.2).
