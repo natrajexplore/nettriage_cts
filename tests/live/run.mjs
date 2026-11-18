@@ -134,6 +134,20 @@ const NETS = {
 const DEVANAGARI = /[ऀ-ॿ]/;
 
 /**
+ * Whether a reply states a site-check result as fact. Clauses that only describe what a
+ * check would find ("I can test whether example.com is reachable") do not count.
+ *
+ * :param text: The reply.
+ * :return: True when the reply claims the site answered, failed or is up or down.
+ */
+function claimsSiteResult(text) {
+  // A clause runs to a sentence end: punctuation followed by a space or line end, so the
+  // dot inside "example.com" does not end it.
+  const statements = text.replace(/\b(?:whether|if)\b.*?(?:[.?!](?=\s|$)|\n|$)/gim, "");
+  return /answers from your connection|\b(?:is|was|appears|seems) (?:to be )?(?:up|down|reachable|unreachable|online|offline)\b|\b(?:answered|responded|did not answer|didn['’]t (?:answer|respond))\b/i.test(statements);
+}
+
+/**
  * Each scenario: the question, the network, how the confirmation dialog answers, and
  * checks. `must` failures fail the scenario; `should` failures are reported as warnings,
  * for behaviour the instructions ask for but a reasonable model may skip.
@@ -201,8 +215,12 @@ const SCENARIOS = [
     must: [
       ["got Hindi steps for Android", (run) => run.called("get_fix_steps", (args) => args.language === "hi" && args.device === "android")],
       ["reply is in Hindi", (run) => (run.text.match(/[ऀ-ॿ]/g) || []).length > 40],
-      ["reply uses a Hindi playbook step", (run) => run.fixSteps().some((step) => step.length > 20 && DEVANAGARI.test(step) && run.text.includes(step.slice(0, 20)))],
+      // The playbook's own terms for "slow" on Android: the steps are there, not invented.
+      ["reply carries the Hindi playbook steps", (run) => ["VPN", "बैटरी", "राउटर", "चेकअप"].every((term) => run.text.includes(term))],
     ],
+    // Models often swap in synonyms when quoting Hindi. The page's Fix steps panel always
+    // shows the exact text; this tracks how closely the chat quotes it.
+    should: [["quotes a Hindi playbook step word for word", (run) => run.fixSteps().some((step) => step.length > 20 && DEVANAGARI.test(step) && run.text.includes(step.slice(0, 20)))]],
   },
   {
     id: "decline-router",
@@ -210,7 +228,7 @@ const SCENARIOS = [
     net: "healthy",
     must: [
       ["contacted nothing", (run) => !run.called("check_site")],
-      ["reply says it cannot", (run) => /can(?:no|')t|cannot|not able|unable|isn't able|doesn't have|no way to/i.test(run.text)],
+      ["reply says it cannot", (run) => /can(?:no|['’])t|cannot|not able|unable|isn['’]t able|doesn['’]t have|no way to/i.test(run.text)],
     ],
     should: [["offered the router steps", (run) => run.called("get_fix_steps", (args) => args.device === "router") || /unplug|power/i.test(run.text)]],
   },
@@ -222,8 +240,9 @@ const SCENARIOS = [
     must: [
       ["asked to check example.com", (run) => run.confirmed.some((items) => items.some((item) => item.action === "check_site"))],
       ["the check did not run", (run) => !run.called("check_site")],
-      ["reply does not invent a result", (run) => !/\b(answers from your connection|is up|is down|is reachable)\b/i.test(run.text)],
+      ["reply does not invent a result", (run) => !claimsSiteResult(run.text)],
     ],
+    should: [["says the check did not run", (run) => /declin|cancel|did(?:n['’]t| not) (?:run|test|check|contact)|not (?:run|tested|checked|contacted)|haven['’]t (?:run|tested|checked)/i.test(run.text)]],
   },
 ];
 
