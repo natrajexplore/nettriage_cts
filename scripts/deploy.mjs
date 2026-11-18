@@ -44,7 +44,7 @@ try {
   if (dry) {
     console.log(readdirSync(out).join("\n"));
   } else {
-    execFileSync("npx", ["--yes", "wrangler@4", "deploy", "--message", `commit ${commit}`], { cwd: out, stdio: "inherit", shell: process.platform === "win32" });
+    execFileSync("npx", ["--yes", "wrangler@4", "deploy", `--message=commit-${commit}`], { cwd: out, stdio: "inherit", shell: process.platform === "win32" });
   }
 } finally {
   rmSync(out, { recursive: true, force: true });
