@@ -4,6 +4,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-%3E%3D22-339933.svg)
 ![Tests: 26 passing](https://img.shields.io/badge/tests-26%20passing-brightgreen.svg)
+![Live test: 8 scenarios](https://img.shields.io/badge/live%20test-8%20scenarios-0f5e4b.svg)
 ![Languages: English ·தமிழ். हिन्दी](https://img.shields.io/badge/fix%20steps-English%20%C2%B7%20Hindi%20%C2%B7%20Tamil-0f5e4b.svg)
 
 An **open agentic website** for the [Open Agentic Web Challenge](https://cognizant-agenticweb.devpost.com/),
@@ -221,6 +222,29 @@ and clock, so they are fast, offline and repeatable. They cover:
 
 [CI](.github/workflows/ci.yml) runs on every push and pull request with Node 22 and 24. It checks that the generated
 files match their sources, runs the tests, and confirms `runtime/` is identical to the official copy.
+
+### Live test on a real model
+`npm run test:live` sends the sample questions through the **same runtime and LangChain runner the browser
+uses**, on a real LLM (Groq, `openai/gpt-oss-120b` by default). The page's probes see a scripted network, so each
+scenario has a known right answer, and the test checks which tools the agents called, with which arguments, and
+that the reply states the measured facts:
+
+| Scenario | Network | Checks |
+| --- | --- | --- |
+| `slow` | slow | runs a checkup; says "slow"; quotes a measured time |
+| `site` | healthy | asks the visitor, then checks `wikipedia.org`; says it answers |
+| `dns-windows` | DNS broken | runs a checkup; gets DNS steps for Windows; keeps `ipconfig /flushdns` exactly |
+| `steps-iphone` | healthy | gets unstable-connection steps for iPhone |
+| `report` | healthy | returns the support report text |
+| `hindi-android` | slow | gets Hindi steps for Android; replies in Hindi with a playbook step |
+| `decline-router` | healthy | says it cannot restart the router; contacts nothing |
+| `declined-dialog` | healthy | the visitor declines the dialog; nothing runs and no result is invented |
+
+Setup: create a free key at [console.groq.com/keys](https://console.groq.com/keys) and put
+`GROQ_API_KEY=gsk_...` in `.env.local` (git-ignored, never deployed). The key is sent only to Groq and never
+printed. Options: `--only=<id>`, `--model=<id>`, `--runner=manual`. Transcripts go to `.live-results/latest.md`.
+It is not part of `npm test` or CI: it needs a key, the free tier's rate limits make a full run take several
+minutes, and a model's wording varies, so run it a few times before trusting a single pass or failure.
 
 ## Deploy
 - **Cloudflare from the command line** (how the live site is deployed): run `npx wrangler@4 login` once, commit

@@ -11,6 +11,7 @@ import { StubDocument } from "./stub_document.mjs";
 import { StubElement } from "./stub_element.mjs";
 import { StubOption } from "./stub_option.mjs";
 import { ScriptedModel } from "./scripted_model.mjs";
+import { FakeNet } from "./fake_net.mjs";
 
 const NETWORK_NAME = "net_triage";
 const BASE = "http://localhost:8080";
@@ -24,45 +25,6 @@ const { diagnoseCheckup, diagnoseSite } = await import("../js/diagnosis.js");
 const { normalizeHost, isPublicIPv4 } = await import("../js/probes.js");
 const { TriagePage, HISTORY_LIMIT } = await import("../script.js");
 const { LANGUAGES, PROBLEMS, DEVICES } = await import("../js/playbooks.js");
-
-/**
- * A fake network. Each host maps to a list of delays in ms (null = no answer) used in
- * turn, or to a DNS answer for the DoH resolvers. A fake clock advances by each delay.
- */
-class FakeNet {
-  constructor(hosts, dns = {}) {
-    this.hosts = hosts;
-    this.dns = dns;
-    this.time = 0;
-    this.calls = [];
-    this.counts = {};
-    this.fetch = this.fetch.bind(this);
-    this.now = () => this.time;
-  }
-
-  async fetch(url) {
-    const parsed = new URL(url);
-    this.calls.push(parsed.host);
-    if (parsed.host === "cloudflare-dns.com" || parsed.host === "dns.google") {
-      const name = parsed.searchParams.get("name");
-      const answer = this.dns[name] ?? { Status: 0, Answer: [{ type: 1, data: "203.0.113.10" }] };
-      return { ok: true, json: async () => answer };
-    }
-    const plan = this.hosts[parsed.host] ?? this.hosts["*"] ?? [40];
-    const index = this.counts[parsed.host] ?? 0;
-    this.counts[parsed.host] = index + 1;
-    const delay = plan[Math.min(index, plan.length - 1)];
-    if (delay === null) {
-      throw new TypeError("Failed to fetch");
-    }
-    if (delay === "timeout") {
-      // What fetch throws when the probe's AbortController fires.
-      throw Object.assign(new Error("The operation was aborted."), { name: "AbortError" });
-    }
-    this.time += delay;
-    return { ok: false, type: "opaque" };
-  }
-}
 
 function scope() {
   return { base: BASE, network: NETWORK_NAME };

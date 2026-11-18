@@ -13,6 +13,7 @@
     "check": "node tools/agentify-website/scripts/build_network.mjs net_triage.hocon --manifest agent-manifest.json --check",
     "test": "node --test \"tests/*.test.mjs\"",
     "verify": "npm run check && npm test",
+    "test:live": "node tests/live/run.mjs",
     "serve": "node tools/agentify-website/scripts/serve_site.mjs . --port 8080",
     "deploy": "node scripts/deploy.mjs"
   }

@@ -6,3 +6,5 @@ node_modules/
 .env.*
 # Personal hackathon notes, kept local.
 HACKATHON_PLAN.md
+# Live test transcripts (local only).
+.live-results/
