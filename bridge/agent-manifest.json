@@ -1,0 +1,10 @@
+{
+  "networks": [
+    {
+      "name": "net_triage"
+    }
+  ],
+  "actions": {
+    "version": 1
+  }
+}

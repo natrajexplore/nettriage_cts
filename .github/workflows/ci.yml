@@ -1,0 +1,28 @@
+# Checks every push and pull request: the generated network and discovery files must
+# match net_triage.hocon and agent-manifest.json, and the Node tests must pass.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Generated files are up to date
+        run: npm run check
+      - name: Tests
+        run: npm test
+      - name: Runtime is the unchanged official copy
+        run: diff -r runtime tools/agentify-website/runtime

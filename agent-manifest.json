@@ -1,0 +1,84 @@
+{
+  "brand": "NetTriage Assistant",
+  "networks": [
+    {
+      "name": "net_triage",
+      "front_man": "triage_desk",
+      "hocon": "./net_triage.network.json",
+      "description": "Tell me what is wrong with your internet. I check it from your browser and explain what to do.",
+      "tags": [
+        "agentified-website",
+        "network-diagnostics",
+        "it-support"
+      ],
+      "sample_queries": [
+        "My internet feels really slow right now. What is wrong?",
+        "Is wikipedia.org down for everyone or just for me?",
+        "Websites will not load on my Windows laptop. How do I fix it?",
+        "Give me fix steps for an unstable connection on my iPhone.",
+        "Write up my results so I can send them to my internet provider.",
+        "मेरे Android फ़ोन पर इंटरनेट बहुत धीमा है, हिंदी में स्टेप बताइए।",
+        "Can you restart my router for me?"
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false,
+    "byok_router": "https://api.otari.ai/api/v1"
+  },
+  "allowed_peers": [],
+  "peer_policy": {
+    "mode": "closed",
+    "deny_origins": [],
+    "note": "Local agents and page-local actions only."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "net_triage",
+    "front_man": "triage_desk",
+    "available": false,
+    "reason": "This is a static bundle; a public MCP facade requires an application host."
+  },
+  "theme": {
+    "primary": "#0f5e4b"
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "net_triage",
+        "front_man": "triage_desk",
+        "aliases": [
+          "net_triage",
+          "triage_desk"
+        ],
+        "url": "net_triage"
+      }
+    ],
+    "imports": [],
+    "link_updates": {
+      "mode": "browser-local"
+    }
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "direct_mcp_requires_cors": true,
+    "public_mcp_facade": false
+  },
+  "actions": {
+    "version": 1,
+    "module": "./site-actions.js",
+    "bridge": "./bridge/action-bridge.html",
+    "agentTools": [
+      "get_triage_state",
+      "run_checkup",
+      "check_site",
+      "get_fix_steps",
+      "get_support_report"
+    ]
+  }
+}

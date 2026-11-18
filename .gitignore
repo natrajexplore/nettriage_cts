@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+# Never commit or publish keys. This static site has no server that could read .env.
+.env
+.env.*
+# Personal hackathon notes, kept local.
+HACKATHON_PLAN.md

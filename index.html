@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetTriage — Is it my Wi-Fi, my provider, or the website?</title>
+  <meta name="description" content="An open agentic website that checks your internet connection from your own browser and explains what is wrong in plain words.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="script.js"></script>
+  <script type="module" src="site.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Open agentic website</p>
+      <h1>NetTriage</h1>
+      <p class="lede">Is it my Wi-Fi, my internet provider, or the website? Run a checkup from this browser, then ask the assistant what it means and what to do.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card" aria-labelledby="checkup-heading">
+      <h2 id="checkup-heading">1. Connection checkup</h2>
+      <p>Times a few well-known public endpoints from your browser and applies fixed rules to name the most likely problem.</p>
+      <button id="run-checkup" type="button">Run checkup</button>
+      <p id="checkup-status" role="status">No checkup yet.</p>
+      <div id="checkup-result" hidden>
+        <p id="checkup-verdict" class="verdict"></p>
+        <ul id="checkup-evidence"></ul>
+        <table>
+          <caption>Measurements</caption>
+          <thead><tr><th>Endpoint</th><th>Answered</th><th>First</th><th>Typical</th><th>Variation</th></tr></thead>
+          <tbody id="checkup-rows"></tbody>
+        </table>
+      </div>
+      <details>
+        <summary>What the checkup contacts</summary>
+        <ul id="contacts-list"></ul>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="site-heading">
+      <h2 id="site-heading">2. Is one website down, or just for me?</h2>
+      <form id="site-form">
+        <label for="site-input">Website address</label>
+        <div class="row">
+          <input id="site-input" name="site" type="text" maxlength="253" placeholder="example.com" autocomplete="off" required>
+          <button id="site-submit" type="submit">Check this site</button>
+        </div>
+      </form>
+      <p id="site-status" role="status"></p>
+      <div id="site-result" hidden>
+        <p id="site-verdict" class="verdict"></p>
+        <ul id="site-evidence"></ul>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="fix-heading">
+      <h2 id="fix-heading">3. Fix steps</h2>
+      <form id="fix-form" class="row">
+        <label for="fix-problem">Problem</label>
+        <select id="fix-problem" name="problem"></select>
+        <label for="fix-device">Device</label>
+        <select id="fix-device" name="device"></select>
+        <label for="fix-language">Language</label>
+        <select id="fix-language" name="language"></select>
+        <button id="fix-submit" type="submit">Show steps</button>
+      </form>
+      <ol id="fix-steps"></ol>
+    </section>
+
+    <section class="card" aria-labelledby="report-heading">
+      <h2 id="report-heading">4. Report for your internet provider</h2>
+      <p>Copies this visit's results as plain text, so you can paste them into a message to your provider or IT helper. It holds measurements only, nothing about you.</p>
+      <button id="copy-report" type="button">Copy report</button>
+      <p id="report-status" role="status"></p>
+      <pre id="report-text" class="report" tabindex="0" aria-label="Connection report" hidden></pre>
+    </section>
+
+    <section id="assistant" class="assistant card" aria-labelledby="assistant-heading">
+      <h2 id="assistant-heading">Ask NetTriage</h2>
+      <p>Describe what is going wrong. The assistant runs the checks on this page, explains the result in plain words and gives fix steps for your device.</p>
+      <p class="assistant-note">Your messages and this page's check results go to the AI provider you choose in the settings below. You confirm before the assistant contacts a website you name.</p>
+      <p id="assistant-status" role="status">Connecting the assistant… If this message stays, the assistant could not load. You can still use the page directly.</p>
+      <div id="agent-app">
+        <div data-ns-slot="header"></div>
+        <div class="assistant-panels">
+          <div data-ns-slot="chat"></div>
+          <div data-ns-slot="agents"></div>
+        </div>
+        <div data-ns-slot="settings"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="limits-heading">
+      <h2 id="limits-heading">What NetTriage cannot do</h2>
+      <ul id="limits-list"></ul>
+      <p id="privacy-note">Checks run in your browser. NetTriage has no server and stores nothing. A site check contacts the website you name, only after you confirm.</p>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <p>NetTriage is open source and follows the <a href="https://github.com/cognizant-ai-labs/agentic-web">Open Agentic Web</a> specification. Agent network: <a href="net_triage.network.json">net_triage.network.json</a> · <a href="agent-manifest.json">agent-manifest.json</a></p>
+  </footer>
+</body>
+</html>

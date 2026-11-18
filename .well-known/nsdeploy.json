@@ -1,0 +1,18 @@
+{
+  "protocol": "nsdeploy-link/v1",
+  "exports": [
+    {
+      "network": "net_triage",
+      "front_man": "triage_desk",
+      "aliases": [
+        "net_triage",
+        "triage_desk"
+      ],
+      "url": "net_triage"
+    }
+  ],
+  "imports": [],
+  "link_updates": {
+    "mode": "browser-local"
+  }
+}

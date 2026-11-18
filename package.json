@@ -1,0 +1,18 @@
+{
+  "name": "nettriage",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Open agentic website: is it my Wi-Fi, my provider, or the website? Checks run in the visitor's own browser.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node tools/agentify-website/scripts/build_network.mjs net_triage.hocon --manifest agent-manifest.json",
+    "check": "node tools/agentify-website/scripts/build_network.mjs net_triage.hocon --manifest agent-manifest.json --check",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "verify": "npm run check && npm test",
+    "serve": "node tools/agentify-website/scripts/serve_site.mjs . --port 8080"
+  }
+}
