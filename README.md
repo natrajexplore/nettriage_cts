@@ -223,8 +223,12 @@ and clock, so they are fast, offline and repeatable. They cover:
 files match their sources, runs the tests, and confirms `runtime/` is identical to the official copy.
 
 ## Deploy
-- **Cloudflare Pages** (recommended): connect this repository, no build command, output directory `/`. The
-  `_headers` file sets CORS on the public agent files and the CSP on the sandbox worker.
+- **Cloudflare from the command line** (how the live site is deployed): run `npx wrangler@4 login` once, commit
+  your changes, then `npm run deploy`. [`scripts/deploy.mjs`](scripts/deploy.mjs) exports the current commit with
+  `git archive` and deploys only that, so uncommitted or ignored files (such as `.env.local`) never go public.
+  `npm run deploy -- --dry` lists what would be uploaded.
+- **Cloudflare Pages from Git**: connect this repository, no build command, output directory `/`.
+- Either way, the `_headers` file sets CORS on the public agent files and the CSP on the sandbox worker.
 - **GitHub Pages** also works (it sends `Access-Control-Allow-Origin: *` on every file), but cannot set the
   sandbox-worker CSP header.
 
