@@ -14,7 +14,7 @@ export { ActionRegistry } from "./actions.js";
 
 import { Engine } from "./engine.js";
 import { TraceBus } from "./trace.js";
-import { mountApp } from "./ui.js";
+import { API_KEY_PROVIDERS, mountApp, providerMismatch } from "./ui.js";
 import { getSelectedByokProfile, loadTabByokSetup } from "./byok.js";
 import { OpenRouterConnect } from "./openrouter-connect.js";
 
@@ -48,6 +48,15 @@ export async function boot(rootSelector = "#app", opts = {}) {
   }
   const savedProfile = getSelectedByokProfile();
   const tabSetup = loadTabByokSetup(savedProfile);
+  // A setup that sends a recognized key to another provider's router always fails.
+  // Use the key's own provider instead, and its model unless another one was chosen.
+  const mismatch = providerMismatch(tabSetup.key, tabSetup.router);
+  if (mismatch) {
+    const otherModel = API_KEY_PROVIDERS.some((p) => p !== mismatch && p.model === tabSetup.model);
+    console.warn(`This ${mismatch.name} key was set up with another provider's URL. Using ${mismatch.router} instead.`);
+    tabSetup.router = mismatch.router;
+    if (!tabSetup.model || otherModel) tabSetup.model = mismatch.model;
+  }
   const siteBase = (opts.originUrl || location.origin).replace(/\/$/, "");
   const engine = new Engine({
     originUrl: siteBase,

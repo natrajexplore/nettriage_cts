@@ -115,6 +115,17 @@ export function providerForApiKey(apiKey) {
   return match;
 }
 
+// The key's provider, when the router is another listed provider's. A key sent there
+// always fails, for example a Groq key at Otari after a site changes its default router.
+// A router no provider lists (a proxy, a self-hosted gateway) is the visitor's choice.
+export function providerMismatch(apiKey, router) {
+  const provider = providerForApiKey(apiKey);
+  const same = (a, b) => String(a || "").trim().replace(/\/+$/, "").toLowerCase()
+    === String(b || "").trim().replace(/\/+$/, "").toLowerCase();
+  if (!provider || same(router, provider.router)) return null;
+  return API_KEY_PROVIDERS.some((other) => same(router, other.router)) ? provider : null;
+}
+
 // The providers shown as buttons in the settings panel.
 export function providerButtons() {
   return API_KEY_PROVIDERS.filter((provider) => provider.button !== false);
@@ -1289,7 +1300,9 @@ export function mountApp(root, { engine, trace, manifest, connect = null }) {
   keyEl.addEventListener("input", () => {
     const key = keyEl.value.trim();
     const provider = providerForApiKey(key);
-    if (provider && provider !== formProvider) {
+    // Fill in the provider's settings again when the router belongs to another provider,
+    // so pasting the same key fixes a setup saved with the wrong router.
+    if (provider && (provider !== formProvider || providerMismatch(key, routerEl.value))) {
       applyProviderDefaults(provider, `${provider.name} key detected. Recommended settings are ready.`);
     } else if (!provider && key) {
       // Another provider's settings must not stay with this key, and a real key never goes

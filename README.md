@@ -3,7 +3,7 @@
 [![CI](https://github.com/natrajexplore/nettriage_cts/actions/workflows/ci.yml/badge.svg)](https://github.com/natrajexplore/nettriage_cts/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-%3E%3D22-339933.svg)
-![Tests: 28 passing](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)
+![Tests: 33 passing](https://img.shields.io/badge/tests-33%20passing-brightgreen.svg)
 ![Live test: 8 scenarios](https://img.shields.io/badge/live%20test-8%20scenarios-0f5e4b.svg)
 ![Languages: English ·தமிழ். हिन्दी](https://img.shields.io/badge/fix%20steps-English%20%C2%B7%20Hindi%20%C2%B7%20Tamil-0f5e4b.svg)
 
@@ -66,7 +66,7 @@ Requires **Node.js 22 or newer**. No `npm install` is needed: the project has no
 ```shell
 git clone https://github.com/natrajexplore/nettriage_cts.git
 cd nettriage_cts
-npm run verify    # checks the generated network files, then runs the 28 tests
+npm run verify    # checks the generated network files, then runs the 33 tests
 npm run serve     # serves the site at http://127.0.0.1:8080/
 ```
 
@@ -211,7 +211,7 @@ Never edit generated files (`net_triage.network.json`, `bridge/`, `agent-mcp.jso
 Change `net_triage.hocon` or `agent-manifest.json`, then run `npm run build`.
 
 ## Testing and CI
-`npm run verify` runs 28 tests on the **real runtime and page code** with a scripted model and a fake network
+`npm run verify` runs 33 tests on the **real runtime and page code** with a scripted model and a fake network
 and clock, so they are fast, offline and repeatable. They cover:
 
 - every verdict rule and threshold, including cold-TLS and timeout cases;
