@@ -52,7 +52,7 @@ export const PLAYBOOKS = {
   },
   dns_problem: {
     all: ["Most DNS problems clear after restarting the router, which refreshes its DNS settings."],
-    windows: ["Open Command Prompt and run: ipconfig /flushdns", "To use a public DNS: Settings > Network & internet > your connection > DNS server assignment > Edit > Manual, IPv4 preferred 1.1.1.1, alternate 8.8.8.8. Switch back to Automatic to undo."],
+    windows: ["Open Command Prompt and run: ipconfig /flushdns", "For a public DNS, open Settings > Network & internet > your connection > DNS server assignment > Edit.", "Choose Manual, turn on IPv4, set Preferred DNS to 1.1.1.1 and Alternate DNS to 8.8.8.8, then select Save.", "To undo, set DNS server assignment back to Automatic."],
     macos: ["System Settings > Wi-Fi > Details next to your network > DNS. Add 1.1.1.1 and 8.8.8.8. Remove them to undo."],
     android: ["Settings > Network & internet > Private DNS > Private DNS provider hostname: one.one.one.one. Choose Automatic to undo. (Menu names vary by phone maker.)"],
     iphone: ["Settings > Wi-Fi > (i) next to your network > Configure DNS > Manual, add 1.1.1.1. Choose Automatic to undo."],
@@ -120,11 +120,15 @@ export const LANGUAGES = {
 export function stepsFor(problem, device, language = "en") {
   const lang = LANGUAGES[language];
   const book = lang.playbooks[problem];
+  const steps = [...book.all, ...(book[device] || [])];
   return {
     problem: lang.labels.problems[problem],
     device: lang.labels.devices[device],
     language: language,
-    steps: [...book.all, ...(book[device] || [])],
+    steps: steps,
     closing: lang.closing,
+    // The steps as the chat should show them: numbered, then the closing line. Agents
+    // paste this block, so the wording the visitor sees is the playbook's own.
+    text: `${steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n${lang.closing}`,
   };
 }

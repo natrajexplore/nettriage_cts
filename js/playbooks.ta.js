@@ -48,7 +48,7 @@ export const PLAYBOOKS = {
   },
   dns_problem: {
     all: ["பெரும்பாலான DNS பிரச்சனைகள் ரவுட்டரை மறுதொடக்கம் செய்தால் சரியாகிவிடும், ஏனெனில் அது அதன் DNS அமைப்புகளைப் புதுப்பிக்கிறது."],
-    windows: ["Command Prompt-ஐத் திறந்து இதை இயக்கவும்: ipconfig /flushdns", "பொது DNS-ஐப் பயன்படுத்த: Settings > Network & internet > (உங்கள் இணைப்பு) > DNS server assignment > Edit > Manual, IPv4 preferred 1.1.1.1, alternate 8.8.8.8. பழையபடி மாற்ற Automatic-ஐத் தேர்ந்தெடுக்கவும்."],
+    windows: ["Command Prompt-ஐத் திறந்து இதை இயக்கவும்: ipconfig /flushdns", "பொது DNS-க்கு Settings > Network & internet > (உங்கள் இணைப்பு) > DNS server assignment > Edit-ஐத் திறக்கவும்.", "Manual-ஐத் தேர்ந்தெடுத்து, IPv4-ஐ இயக்கி, Preferred DNS-இல் 1.1.1.1, Alternate DNS-இல் 8.8.8.8 என உள்ளிட்டு, Save அழுத்தவும்.", "பழையபடி மாற்ற, DNS server assignment-ஐ மீண்டும் Automatic ஆக மாற்றவும்."],
     macos: ["System Settings > Wi-Fi > உங்கள் நெட்வொர்க்கின் அருகில் உள்ள Details > DNS. 1.1.1.1 மற்றும் 8.8.8.8 சேர்க்கவும். பழையபடி மாற்ற அவற்றை நீக்கவும்."],
     android: ["Settings > Network & internet > Private DNS > Private DNS provider hostname: one.one.one.one. பழையபடி மாற்ற Automatic-ஐத் தேர்ந்தெடுக்கவும். (மெனு பெயர்கள் போன் தயாரிப்பாளரைப் பொறுத்து மாறலாம்.)"],
     iphone: ["Settings > Wi-Fi > உங்கள் நெட்வொர்க்கின் அருகில் உள்ள (i) > Configure DNS > Manual, 1.1.1.1 சேர்க்கவும். பழையபடி மாற்ற Automatic-ஐத் தேர்ந்தெடுக்கவும்."],

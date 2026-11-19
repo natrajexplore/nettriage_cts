@@ -3,7 +3,7 @@
 [![CI](https://github.com/natrajexplore/nettriage_cts/actions/workflows/ci.yml/badge.svg)](https://github.com/natrajexplore/nettriage_cts/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-%3E%3D22-339933.svg)
-![Tests: 26 passing](https://img.shields.io/badge/tests-26%20passing-brightgreen.svg)
+![Tests: 28 passing](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)
 ![Live test: 8 scenarios](https://img.shields.io/badge/live%20test-8%20scenarios-0f5e4b.svg)
 ![Languages: English ·தமிழ். हिन्दी](https://img.shields.io/badge/fix%20steps-English%20%C2%B7%20Hindi%20%C2%B7%20Tamil-0f5e4b.svg)
 
@@ -66,7 +66,7 @@ Requires **Node.js 22 or newer**. No `npm install` is needed: the project has no
 ```shell
 git clone https://github.com/natrajexplore/nettriage_cts.git
 cd nettriage_cts
-npm run verify    # checks the generated network files, then runs the 26 tests
+npm run verify    # checks the generated network files, then runs the 28 tests
 npm run serve     # serves the site at http://127.0.0.1:8080/
 ```
 
@@ -80,9 +80,10 @@ npm run serve     # serves the site at http://127.0.0.1:8080/
 
 ## Using the assistant
 1. Open the page and expand **⚙ AI model settings**.
-2. Choose **Connect with OpenRouter** (free model, no key to copy), or paste a key from Otari, Groq or Google AI
-   Studio. Any OpenAI-compatible provider that allows browser requests (CORS) works through **Custom** and
-   **Advanced settings**.
+2. Paste a free [Groq key](https://console.groq.com/keys) (`gsk_…`): Groq is the site's default provider, with
+   `openai/gpt-oss-120b`. Or choose **Connect with OpenRouter** (free model, no key to copy), or paste a key from
+   Otari or Google AI Studio, which the panel recognises by its prefix. Any other OpenAI-compatible provider that
+   allows browser requests (CORS) works through **Advanced settings** → **Provider URL** and **Model**.
 3. Ask, for example:
    - *My internet feels really slow right now. What is wrong?*
    - *Is wikipedia.org down for everyone or just for me?*
@@ -210,7 +211,7 @@ Never edit generated files (`net_triage.network.json`, `bridge/`, `agent-mcp.jso
 Change `net_triage.hocon` or `agent-manifest.json`, then run `npm run build`.
 
 ## Testing and CI
-`npm run verify` runs 26 tests on the **real runtime and page code** with a scripted model and a fake network
+`npm run verify` runs 28 tests on the **real runtime and page code** with a scripted model and a fake network
 and clock, so they are fast, offline and repeatable. They cover:
 
 - every verdict rule and threshold, including cold-TLS and timeout cases;
@@ -231,14 +232,18 @@ that the reply states the measured facts:
 
 | Scenario | Network | Checks |
 | --- | --- | --- |
-| `slow` | slow | runs a checkup; says "slow"; quotes a measured time |
+| `slow` | slow | runs a checkup; says "slow"; quotes a measured time; asks for the device with a choice widget |
 | `site` | healthy | asks the visitor, then checks `wikipedia.org`; says it answers |
 | `dns-windows` | DNS broken | runs a checkup; gets DNS steps for Windows; keeps `ipconfig /flushdns` exactly |
 | `steps-iphone` | healthy | gets unstable-connection steps for iPhone |
 | `report` | healthy | returns the support report text |
-| `hindi-android` | slow | gets Hindi steps for Android; replies in Hindi with a playbook step |
+| `hindi-android` | slow | gets Hindi steps for Android; replies in Hindi; ends with the Hindi closing line |
 | `decline-router` | healthy | says it cannot restart the router; contacts nothing |
 | `declined-dialog` | healthy | the visitor declines the dialog; nothing runs and no result is invented |
+
+Every scenario also fails if the reply contains widget JSON (such as `render_cruse`) as text instead of a real
+widget. Every run that fetches fix steps must quote **each step word for word** (Markdown emphasis and typographic
+quotes aside), and every numbered item in the reply must be a fetched step: nothing added, split or reworded.
 
 Setup: create a free key at [console.groq.com/keys](https://console.groq.com/keys) and put
 `GROQ_API_KEY=gsk_...` in `.env.local` (git-ignored, never deployed). The key is sent only to Groq and never

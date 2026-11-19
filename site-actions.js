@@ -93,7 +93,7 @@ class SiteActions {
   static fixStepsAction() {
     return {
       name: "get_fix_steps",
-      description: "Return NetTriage's tested fix steps for one problem on one device, in English, Hindi or Tamil, with a closing line in the same language. Changes nothing.",
+      description: "Return NetTriage's tested fix steps for one problem on one device, in English, Hindi or Tamil, with a closing line in the same language. Its text field is the numbered steps and closing line, ready to show word for word. Also shows the steps in the page's Fix steps panel.",
       effect: "read",
       inputSchema: {
         type: "object",
@@ -123,7 +123,7 @@ class SiteActions {
   }
 
   static fixSteps(args) {
-    return App.page.getFixSteps(args.problem, args.device, args.language ?? "en");
+    return App.page.showFixSteps(args.problem, args.device, args.language ?? "en");
   }
 }
 

@@ -355,6 +355,10 @@ export class TriagePage {
     if (!result.ok) {
       return result;
     }
+    // Keep the form in step with the list, also when the assistant asked for the steps.
+    document.getElementById("fix-problem").value = problem;
+    document.getElementById("fix-device").value = device;
+    document.getElementById("fix-language").value = language;
     // Screen readers pick the voice for the steps from lang.
     list.setAttribute("lang", result.language);
     for (const step of result.steps) {

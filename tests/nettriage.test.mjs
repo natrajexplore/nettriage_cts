@@ -464,6 +464,27 @@ test("get_fix_steps returns Hindi and Tamil steps; English stays the default; ot
   assert.match(App.page.getFixSteps("slow", "android", "fr").reason, /English, हिन्दी \(Hindi\), தமிழ் \(Tamil\)/);
 });
 
+test("get_fix_steps gives a ready-to-show block: every step numbered, word for word, then the closing line", () => {
+  for (const language of Object.keys(LANGUAGES)) {
+    const result = App.page.getFixSteps("dns_problem", "windows", language);
+    const [list, closing] = result.text.split("\n\n");
+    assert.deepEqual(list.split("\n"), result.steps.map((step, index) => `${index + 1}. ${step}`));
+    assert.equal(closing, result.closing);
+  }
+});
+
+test("get_fix_steps from the assistant also shows the exact steps in the page's panel and form", async () => {
+  const loaded = await load();
+  const ctx = context(loaded, await registry(), new ScriptedModel([]), approve);
+  const entry = await tool(loaded, ctx, "get_fix_steps");
+  const receipt = await dispatchToolCall(ctx, entry, { problem: "unstable", device: "iphone", language: "ta" }, null, []);
+  assert.equal(receipt.status, "succeeded");
+  const list = document.getElementById("fix-steps");
+  assert.deepEqual(list.children.map((item) => item.textContent), receipt.result.steps);
+  assert.equal(list.getAttribute("lang"), "ta");
+  assert.deepEqual(["fix-problem", "fix-device", "fix-language"].map((id) => document.getElementById(id).value), ["unstable", "iphone", "ta"]);
+});
+
 test("the page's fix form shows steps in the chosen language and marks it for screen readers", () => {
   const options = document.getElementById("fix-language").children.map((option) => option.value);
   assert.deepEqual(options, ["en", "hi", "ta"]);
@@ -492,5 +513,6 @@ test("fix_guide passes the visitor's language to the playbook tool", async () =>
   assert.equal(receipt.result.language, "hi");
   assert.ok(receipt.result.steps.every((step) => /[ऀ-ॿ]/.test(step)));
   const fixGuide = loaded.network.getAgentSpec("fix_guide").instructions;
-  assert.ok(fixGuide.includes("Do not translate them."));
+  assert.ok(fixGuide.includes("Return the result's text unchanged"));
+  assert.ok(fixGuide.includes("Do not translate, reword, split or add to a step."));
 });

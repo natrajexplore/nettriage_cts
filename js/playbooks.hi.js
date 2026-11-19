@@ -48,7 +48,7 @@ export const PLAYBOOKS = {
   },
   dns_problem: {
     all: ["ज़्यादातर DNS समस्याएँ राउटर रीस्टार्ट करने से ठीक हो जाती हैं, क्योंकि इससे उसकी DNS सेटिंग्स ताज़ा हो जाती हैं।"],
-    windows: ["Command Prompt खोलें और यह चलाएँ: ipconfig /flushdns", "पब्लिक DNS इस्तेमाल करने के लिए: Settings > Network & internet > (आपका कनेक्शन) > DNS server assignment > Edit > Manual, IPv4 preferred 1.1.1.1, alternate 8.8.8.8। पहले जैसा करने के लिए Automatic चुनें।"],
+    windows: ["Command Prompt खोलें और यह चलाएँ: ipconfig /flushdns", "पब्लिक DNS के लिए Settings > Network & internet > (आपका कनेक्शन) > DNS server assignment > Edit खोलें।", "Manual चुनें, IPv4 चालू करें, Preferred DNS में 1.1.1.1 और Alternate DNS में 8.8.8.8 डालें, फिर Save दबाएँ।", "पहले जैसा करने के लिए DNS server assignment को फिर से Automatic पर करें।"],
     macos: ["System Settings > Wi-Fi > अपने नेटवर्क के आगे Details > DNS। 1.1.1.1 और 8.8.8.8 जोड़ें। पहले जैसा करने के लिए इन्हें हटा दें।"],
     android: ["Settings > Network & internet > Private DNS > Private DNS provider hostname: one.one.one.one। पहले जैसा करने के लिए Automatic चुनें। (मेन्यू के नाम फ़ोन कंपनी के हिसाब से अलग हो सकते हैं।)"],
     iphone: ["Settings > Wi-Fi > अपने नेटवर्क के आगे (i) > Configure DNS > Manual, 1.1.1.1 जोड़ें। पहले जैसा करने के लिए Automatic चुनें।"],

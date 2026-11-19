@@ -23,9 +23,9 @@
     }
   ],
   "llm_router": {
-    "base_url": "https://api.otari.ai/api/v1",
+    "base_url": "https://api.groq.com/openai/v1",
     "mock": false,
-    "byok_router": "https://api.otari.ai/api/v1"
+    "byok_router": "https://api.groq.com/openai/v1"
   },
   "allowed_peers": [],
   "peer_policy": {

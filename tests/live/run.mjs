@@ -131,8 +131,6 @@ const NETS = {
   dns: () => new FakeNet({ "1.1.1.1": [50], "*": [null] }),
 };
 
-const DEVANAGARI = /[ऀ-ॿ]/;
-
 /**
  * Whether a reply states a site-check result as fact. Clauses that only describe what a
  * check would find ("I can test whether example.com is reachable") do not count.
@@ -148,6 +146,56 @@ function claimsSiteResult(text) {
 }
 
 /**
+ * Text as a reader sees it: no Markdown emphasis or code marks, typographic quotes,
+ * hyphens and spaces made plain, runs of white space as one space.
+ *
+ * :param text: Reply or playbook text.
+ * :return: The comparable text.
+ */
+function plain(text) {
+  return String(text).replace(/[*_`]/g, "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+    .replace(/[‐‑]/g, "-").replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Whether the reply quotes every fix step it fetched, word for word and unsplit. */
+function quotesEveryStep(run) {
+  const steps = run.fixSteps();
+  const reply = plain(run.text);
+  return steps.length > 0 && steps.every((step) => reply.includes(plain(step)));
+}
+
+/** The numbered list items in a reply, as plain text. */
+function numberedItems(text) {
+  return text.split("\n").map((line) => line.match(/^\s*(?:>\s*)?\d+[.)]\s+(.*)$/)).filter(Boolean).map((match) => plain(match[1]));
+}
+
+/** Whether every numbered item in the reply is a fetched step: nothing added or reworded. */
+function addsNoSteps(run) {
+  const steps = new Set(run.fixSteps().map(plain));
+  return numberedItems(run.text).every((item) => steps.has(item));
+}
+
+/** Whether a reply that asks which device the visitor uses offers the choice as a widget. */
+function asksDeviceWithWidget(run) {
+  if (!/which device|what device|device (?:are|do) you/i.test(run.text)) {
+    return true;
+  }
+  return (run.presentation?.components || []).some((component) => component.kind === "choice");
+}
+
+// Checks every scenario must pass, whatever it asks.
+const ALWAYS = [
+  ["reply is not empty", (run) => run.text.trim().length > 0],
+  ["no widget JSON written into the reply", (run) => !/render_cruse|"components"\s*:|"kind"\s*:\s*"(?:choice|form|table|chart)"/.test(run.text)],
+];
+
+// Checks for every scenario that fetches fix steps.
+const STEP_CHECKS = [
+  ["quotes every fix step word for word", quotesEveryStep],
+  ["adds, splits or rewords no step", addsNoSteps],
+];
+
+/**
  * Each scenario: the question, the network, how the confirmation dialog answers, and
  * checks. `must` failures fail the scenario; `should` failures are reported as warnings,
  * for behaviour the instructions ask for but a reasonable model may skip.
@@ -161,6 +209,7 @@ const SCENARIOS = [
       ["ran a checkup", (run) => run.called("run_checkup")],
       ["reply says the connection is slow", (run) => /slow/i.test(run.text)],
       ["reply quotes a measured time", (run) => run.measuredNumbers().some((n) => run.text.includes(String(n)))],
+      ["asks for the device with a choice widget, not in text", asksDeviceWithWidget],
     ],
     should: [["read the page state first", (run) => run.calls[0]?.name === "get_triage_state"]],
   },
@@ -215,12 +264,9 @@ const SCENARIOS = [
     must: [
       ["got Hindi steps for Android", (run) => run.called("get_fix_steps", (args) => args.language === "hi" && args.device === "android")],
       ["reply is in Hindi", (run) => (run.text.match(/[ऀ-ॿ]/g) || []).length > 40],
-      // The playbook's own terms for "slow" on Android: the steps are there, not invented.
-      ["reply carries the Hindi playbook steps", (run) => ["VPN", "बैटरी", "राउटर", "चेकअप"].every((term) => run.text.includes(term))],
+      // The step checks (word for word, nothing added) run too, as for every fetch.
+      ["reply carries the Hindi closing line", (run) => plain(run.text).includes(plain(App.page.getFixSteps("slow", "android", "hi").closing))],
     ],
-    // Models often swap in synonyms when quoting Hindi. The page's Fix steps panel always
-    // shows the exact text; this tracks how closely the chat quotes it.
-    should: [["quotes a Hindi playbook step word for word", (run) => run.fixSteps().some((step) => step.length > 20 && DEVANAGARI.test(step) && run.text.includes(step.slice(0, 20)))]],
   },
   {
     id: "decline-router",
@@ -295,6 +341,7 @@ async function runScenario(scenario) {
     confirmed: confirmed,
     text: "",
     error: null,
+    presentation: null,
     called(name, test = () => true) {
       return calls.some((call) => call.name === name && test(call.args || {}));
     },
@@ -311,11 +358,13 @@ async function runScenario(scenario) {
   try {
     const result = await runAgent(ctx, ctx.frontMan, scenario.question, null, []);
     run.text = result.text || "";
+    run.presentation = result.presentation || null;
   } catch (error) {
     run.error = redact(error && error.stack ? error.stack.split("\n").slice(0, 3).join(" ") : error);
   }
   run.seconds = Math.round((Date.now() - started) / 100) / 10;
-  run.failures = run.error ? ["the run threw an error"] : (scenario.must || []).filter(([, check]) => !check(run)).map(([name]) => name);
+  const must = [...ALWAYS, ...(run.called("get_fix_steps") ? STEP_CHECKS : []), ...(scenario.must || [])];
+  run.failures = run.error ? ["the run threw an error"] : must.filter(([, check]) => !check(run)).map(([name]) => name);
   run.warnings = run.error ? [] : (scenario.should || []).filter(([, check]) => !check(run)).map(([name]) => name);
   return run;
 }
@@ -361,6 +410,11 @@ for (const run of runs) {
     lines.push(`- \`${call.name}\` ${JSON.stringify(call.args)}`);
   }
   lines.push("", "**Reply:**", "", run.error ? `Error: ${run.error}` : run.text.split("\n").map((line) => `> ${line}`).join("\n"), "");
+  if (run.presentation) {
+    const widgets = run.presentation.components.map((component) =>
+      `- ${component.kind} \`${component.id}\`${component.options ? ": " + component.options.map((option) => option.title).join(", ") : ""}`);
+    lines.push("**Widgets:**", "", ...widgets, "");
+  }
 }
 mkdirSync(RESULTS_DIR, { recursive: true });
 writeFileSync(new URL("latest.md", RESULTS_DIR), redact(lines.join("\n")));
